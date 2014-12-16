@@ -1,7 +1,7 @@
 (function ($) {
 	var _window = $(window);
-	
-	var updateFixedLayout = function (mainContainer, childSection, childSectionInner, navigation) {	
+
+	var updateFixedLayout = function (mainContainer, childSection, childSectionInner, navigation) {
 		scrollTop = $(document).scrollTop(),
 		windowHeight = _window.height();
 
@@ -14,46 +14,59 @@
 		};
 
 		// if element has elements within it
-		if (config.fixedContainer.length > 0) {
+		if (config.fixedContainer.length) {
+			//Set fixedContainer Style
+					if(!config.fixedContainer.hasClass('parralax-main-container')){
+						config.fixedContainer.addClass('parralax-main-container');
+					}
 			config.childSections = config.fixedContainer.find(childSection);
 
 			config.childSections.each(function (index) {
 				var _this = $(this),
 				contentInner = _this.find(childSectionInner);
+
 				if (_this.height() != windowHeight) {
 					_this.css({
 						'height' : windowHeight
 					});
 				}
+				if (contentInner.length) {
+					//Set contentInner Style
+					if(!contentInner.hasClass('parralax-inner-container')){
+						contentInner.addClass('parralax-inner-container');
+					}
+					
+				
+					// if index equals current or next element
+					if (index == config.currentIndex || index == config.nextIndex) {
+						contentInner.show();
+						var _top = windowHeight - scrollTop % windowHeight - (contentInner.position().top + $('html').position().top),
+						_bottom = contentInner.height(),
+						_right = contentInner.width(),
+						_left = 0;
+						if (index == config.nextIndex) {
+							//Clip
+							contentInner.css({
+								'clip' : 'rect(' + _top + 'px,' + _right + 'px,' + _bottom + 'px,' + _left + 'px)',
+								'clip-path' : 'rect(' + _top + 'px,' + _right + 'px,' + _bottom + 'px,' + _left + 'px)'
+							});
 
-				// if index equals current or next element
-				if (index == config.currentIndex || index == config.nextIndex) {
-					contentInner.show();
-					var _top = windowHeight - scrollTop % windowHeight - (contentInner.position().top + $('html').position().top),
-					_bottom = contentInner.height(),
-					_right = contentInner.width(),
-					_left = 0;
-					if (index == config.nextIndex) {
-						//Clip
-						contentInner.css({
-							'clip' : 'rect(' + _top + 'px,' + _right + 'px,' + _bottom + 'px,' + _left + 'px)',
-							'clip-path' : 'rect(' + _top + 'px,' + _right + 'px,' + _bottom + 'px,' + _left + 'px)'
-						});
+						} else {
 
+							contentInner.css({
+								'clip' : 'rect(' + 0 + 'px,' + _right + 'px,' + _top + 'px,' + _left + 'px)',
+								'clip-path' : 'rect(' + 0 + 'px,' + _right + 'px,' + _top + 'px,' + _left + 'px)'
+							});
+
+						}
 					} else {
-
-						contentInner.css({
-							'clip' : 'rect(' + 0 + 'px,' + _right + 'px,' + _top + 'px,' + _left + 'px)',
-							'clip-path' : 'rect(' + 0 + 'px,' + _right + 'px,' + _top + 'px,' + _left + 'px)'
-						});
+						if (contentInner.is(':visible')) {
+							contentInner.hide();
+						}
 
 					}
-				} else {
-					if (contentInner.is(':visible')) {
-						contentInner.hide();
-					}
-
 				}
+
 			});
 
 			if (config.navContainer.length) {
@@ -80,7 +93,7 @@
 		_window.on('scroll load', function (e) {
 			updateFixedLayout(config.mainContainer, config.childSectionSelector, config.childSectionInner, config.navigationSelector);
 		});
-		
+
 		return this;
 	}
 }(jQuery));
